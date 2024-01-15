@@ -60,7 +60,8 @@ isUrlParameterSet(name : string) {
 }
 
 isUrlParameterTrue(name : string) {
-	eitherFn(lookupTree(^allUrlParameters, name), \param -> !isParameterFalse(param) || name == "pwaredesign", \-> false);
+	if (name == "pwaredesign") true else
+	eitherFn(lookupTree(^allUrlParameters, name), \param -> !isParameterFalse(param), \-> false);
 }
 
 isUrlParameterFalse(name : string) {
