@@ -1,7 +1,7 @@
-import fusion;
-import math/transformmatrix;
-import ds/array_diff;
-import net/url_parameter;
+import lib/fusion;
+import lib/math/transformmatrix;
+import lib/ds/array_diff;
+import lib/net/url_parameter;
 
 export {
 	fi2d(i : Transform<int>) -> Transform<double>;

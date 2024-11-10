@@ -1,7 +1,7 @@
 
-import string;
-import ds/tree;
-import formats/json/json;
+import lib/string;
+import lib/ds/tree;
+import lib/formats/json/json;
 
 export {
 	// Get a parameter from the URL

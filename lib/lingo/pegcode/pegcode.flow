@@ -1,6 +1,6 @@
-import lingo/pegcode/pegcode_lib;
-import math/stringmath;
-import devmode;
+import lib/lingo/pegcode/pegcode_lib;
+import lib/math/stringmath;
+import lib/devmode;
 
 // TODO:
 // - Introduce PegCommitAndReturn, which is common in the hot path of lexer-like rules.

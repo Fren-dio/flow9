@@ -1,6 +1,6 @@
-import dynamic;
-import ds/tree;
-import sys/target;
+import lib/dynamic;
+import lib/ds/tree;
+import lib/sys/target;
 
 export {
 	// This will reconstruct an object to try to save memory

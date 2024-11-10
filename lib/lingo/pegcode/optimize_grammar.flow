@@ -1,4 +1,4 @@
-import lingo/peg;
+import lib/lingo/peg;
 
 export {
 	// Transforms "a = b c | b d;" to "a = b (c | d)"

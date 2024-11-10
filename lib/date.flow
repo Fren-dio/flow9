@@ -1,11 +1,11 @@
 // © Copyright 2011 Area9 Technologies.
 
-import math/math;
-import maybe;
-import string;
-import utctime;
-import text/translation;
-import ui/fontmapping;
+import lib/math/math;
+import lib/maybe;
+import lib/string;
+import lib/utctime;
+import lib/text/translation;
+import lib/ui/fontmapping;
 
 export {
 	// month and day starting from 1

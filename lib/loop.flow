@@ -1,6 +1,6 @@
-import runtime;
-import ds/tuples;
-import ds/array;
+import lib/runtime;
+import lib/ds/tuples;
+import lib/ds/array;
 
 export {
 	loop(from : ?, step : (?) -> ?, condition : (?) -> bool, action : (?) -> void) -> void;

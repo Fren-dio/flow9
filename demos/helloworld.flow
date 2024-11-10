@@ -1,4 +1,4 @@
-import material/material;
+import lib/material/material;
 
 export {
 	demoMakeHelloWorld(onClose : () -> void) -> Material;

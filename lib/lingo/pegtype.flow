@@ -1,4 +1,4 @@
-import string;
+import lib/string;
 
 export {
 	PegType ::= PegUnknown, PegBool, PegInt, PegDouble, PegStringType, PegStruct, PegArray, PegUnion, PegError, PegRuleType, PegVoid;

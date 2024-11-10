@@ -5,11 +5,11 @@
 
 // TODO: Warn if a grammar contains two productions with the same name
 
-import runtime;
-import string;
-import ds/tree;
-import ds/inttree;
-import lingo/pegtype;
+import lib/runtime;
+import lib/string;
+import lib/ds/tree;
+import lib/ds/inttree;
+import lib/lingo/pegtype;
 
 export {
 	Grammar(productions : [Production]);

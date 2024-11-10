@@ -1,4 +1,4 @@
-import lingo/peg;
+import lib/lingo/peg;
 
 /*
 TODO:

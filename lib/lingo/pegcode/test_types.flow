@@ -1,4 +1,4 @@
-import lingo/flow/flowast;
+import lib/lingo/flow/flowast;
 
 export {
 	Hello();

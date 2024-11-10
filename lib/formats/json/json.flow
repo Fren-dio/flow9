@@ -1,7 +1,7 @@
 // © Copyright 2011 Area9 Technologies.
-import algorithms;
-import string;
-import text/deserialize_string;
+import lib/algorithms;
+import lib/string;
+import lib/text/deserialize_string;
 
 
 export {

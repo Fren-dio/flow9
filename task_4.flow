@@ -1,0 +1,58 @@
+import lib/runtime;
+import lib/ds/tree;
+
+// O(n^2)
+inds1(a : [int], m : int) -> [Pair<int, int>]{
+    res = [];
+    foldi(a, res, \i, sumi, x ->
+        foldi(a, sumi, \j, sumj, y ->
+            if((x + y == m) && (i < j)){
+                concat(sumj, [Pair(i, j)])
+            }
+            else sumj
+        )
+    )
+}
+
+
+// O(n*log(n))
+inds2(a : [int], m : int) -> [Pair<int, int>]{
+    //create tree from input array
+    myTree = foldi(a, makeTree(), \i, treei, x ->
+        switch(lookupTree(treei, x)){
+            Some(elem):{
+                setTree(treei, x, concat(elem, [i]));
+            }
+            None():{
+                setTree(treei, x, [i])
+            }
+        }
+    )
+
+    // find in tree need elems
+    leng = length(a)/2 - 1;
+    foldi(a, [], \i, resultArray, x ->
+        switch(lookupTree(myTree, m - x)){
+            Some(elem):{
+                res = foldi(elem, [], \j, sum, y ->
+                    {
+                        if (i < leng) concat(sum, [Pair(i, y)])
+                        else sum
+                    }
+		        );
+                concat(resultArray, res);
+            }
+            None():{ resultArray; }
+        }
+    )
+}
+
+
+
+main () {
+	int_array : [int] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+	m : int = 10;
+
+	println(inds1(int_array, m));
+	println(inds2(int_array, m));
+}

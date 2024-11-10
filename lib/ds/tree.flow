@@ -2,11 +2,11 @@
 
 // See ds/treeutils.flow for additional helpers
 
-import maybe;
-import ds/tuples;
-import runtime;
-import ds/list;
-import compare;
+import lib/maybe;
+import lib/ds/tuples;
+import lib/runtime;
+import lib/ds/list;
+import lib/compare;
 
 export {
 	// A binary tree with keys of type ? and values of type ??

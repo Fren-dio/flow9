@@ -1,6 +1,6 @@
-import ds/quadtree;
-import form/form;
-import math/stringmath;
+import lib/ds/quadtree;
+import lib/form/form;
+import lib/math/stringmath;
 
 export {
 	ForceLayout(

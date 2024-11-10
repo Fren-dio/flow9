@@ -1,4 +1,4 @@
-import lingo/peg;
+import lib/lingo/peg;
 
 export {
 	// Turn all actions in pa into `Epsion()` (no action).

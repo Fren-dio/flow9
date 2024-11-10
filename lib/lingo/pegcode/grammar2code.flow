@@ -1,5 +1,5 @@
-import lingo/pegcode/pegcode;
-import lingo/peg;
+import lib/lingo/pegcode/pegcode;
+import lib/lingo/peg;
 
 export {
 	// Produces a program as well as debug info map

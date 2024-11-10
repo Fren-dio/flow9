@@ -1,6 +1,6 @@
 
-import ds/array; // filter, exists
-import ds/tree;
+import lib/ds/array; // filter, exists
+import lib/ds/tree;
 
 export {
 	// Removes elements from "a" that exist in "b".

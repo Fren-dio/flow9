@@ -1,7 +1,7 @@
 // © Copyright 2014 Area9 Technologies.
 
-import ds/tree;
-import math/math;
+import lib/ds/tree;
+import lib/math/math;
 
 export {
 	// Compares two arrays, and returns a list of operations to apply to change the old to the new

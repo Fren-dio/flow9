@@ -1,7 +1,7 @@
-import lingo/parse;
-import string;
+import lib/lingo/parse;
+import lib/string;
 
-import lingo/linecolumn;
+import lib/lingo/linecolumn;
 
 export {
 	// Parse a text with a given grammar, and the given semantic actions.

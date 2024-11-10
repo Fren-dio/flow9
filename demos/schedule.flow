@@ -1,6 +1,6 @@
-import material/material;
-import material/material_dialog;
-import ds/array;
+import lib/material/material;
+import lib/material/material_dialog;
+import lib/ds/array;
 
 export {
 	demoMakeSchedule(mgr : MaterialManager, onClose : () -> void) -> Material;

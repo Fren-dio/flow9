@@ -1,6 +1,6 @@
 // © Copyright 2011 Area9 Technologies.
 
-import maybe;
+import lib/maybe;
 
 // Single-linked list. For a double-linked list, see dlist
 export {

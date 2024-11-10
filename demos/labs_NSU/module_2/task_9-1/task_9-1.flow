@@ -1,0 +1,263 @@
+
+import lib/runtime;
+import lib/lingo/pegcode/driver;
+
+
+Exp ::= Add, Sub, Mul, Div, Pow, Double;
+    Pow : (e1 : Exp, e2 : Exp);
+    Div : (e1 : Exp, e2 : Exp);     // ':'
+    Mul : (e1 : Exp, e2 : Exp);     // '-'
+    Sub : (e1 : Exp, e2 : Exp);
+    Add : (e1 : Exp, e2 : Exp);
+    Double : (e : double);
+
+rpnToken ::= AddToken, SubToken, MulToken, DivToken, PowToken, DoubleToken;
+    AddToken : ();
+    SubToken : ();
+    MulToken : ();
+    DivToken : ();
+    PowToken : ();
+    DoubleToken : (e : double);
+
+standartGrammar = compilePegGrammar("#include C:\Users\kulma\gitRepository\newTryFlow\flow9\demos\labs_NSU\module_2\task_9-1\lingo\arifmetic.lingo");
+rpnGrammar = compilePegGrammar("#include C:\Users\kulma\gitRepository\newTryFlow\flow9\demos\labs_NSU\module_2\task_9-1\lingo\rpn.lingo");
+
+
+// convert from rpn to normal
+processRPNToken(resultExpArray: [Exp], token: rpnToken) -> [Exp] {
+    switch(token) {
+        AddToken(): {
+            operand1: Exp = resultExpArray[length(resultExpArray) - 1];
+            operand2: Exp = resultExpArray[length(resultExpArray) - 2];
+            tmp1: [Exp] = removeRange(resultExpArray, length(resultExpArray) - 2, 2);
+            arrayPush(tmp1, Add(operand2, operand1));
+        }
+        SubToken(): {
+            operand1: Exp = resultExpArray[length(resultExpArray) - 1];
+            operand2: Exp = resultExpArray[length(resultExpArray) - 2];
+            tmp1: [Exp] = removeRange(resultExpArray, length(resultExpArray) - 2, 2);
+            arrayPush(tmp1, Sub(operand2, operand1));
+        }
+        MulToken(): {
+            operand1: Exp = resultExpArray[length(resultExpArray) - 1];
+            operand2: Exp = resultExpArray[length(resultExpArray) - 2];
+            tmp1: [Exp] = removeRange(resultExpArray, length(resultExpArray) - 2, 2);
+            arrayPush(tmp1, Mul(operand2, operand1));
+        }
+        DivToken(): {
+            operand1: Exp = resultExpArray[length(resultExpArray) - 1];
+            operand2: Exp = resultExpArray[length(resultExpArray) - 2];
+            tmp1: [Exp] = removeRange(resultExpArray, length(resultExpArray) - 2, 2);
+            arrayPush(tmp1, Div(operand2, operand1));
+        }
+        PowToken(): {
+            operand1: Exp = resultExpArray[length(resultExpArray) - 1];
+            operand2: Exp = resultExpArray[length(resultExpArray) - 2];
+            tmp1: [Exp] = removeRange(resultExpArray, length(resultExpArray) - 2, 2);
+            arrayPush(tmp1, Pow(operand2, operand1));
+        }
+        DoubleToken(i): arrayPush(resultExpArray, Double(i));
+    } 
+}
+
+
+// convert from normal to rpn
+convertToRPN(e: Exp) -> string {
+    switch(e) {
+        Pow(e1, e2): convertToRPN(e1) + " " + convertToRPN(e2) + " ^ ";
+        Div(e1, e2): convertToRPN(e1) + " " + convertToRPN(e2) + " / ";
+        Mul(e1, e2): convertToRPN(e1) + " " + convertToRPN(e2) + " * ";
+        Sub(e1, e2): convertToRPN(e1) + " " + convertToRPN(e2) + " - ";
+        Add(e1, e2): convertToRPN(e1) + " " + convertToRPN(e2) + " + ";
+        Double(i): d2s(i);
+    }
+}
+
+
+parserFromRPNToString(tokens: [flow]) -> Exp {
+    finalTokens = fold(tokens[0], [], processRPNToken);
+    finalTokens[0];
+}
+
+
+specialPegActions = {
+		t = setTree(defaultPegActions.t, "parserFromRPNToString", parserFromRPNToString );
+		SemanticActions(t);
+	}
+
+
+convertToArithmeticView(e: Exp) -> string {
+    switch(e) {
+        Pow(e1, e2): "(" + convertToArithmeticView(e1) + " ^ " + convertToArithmeticView(e2) + ")";
+        Div(e1, e2): "(" + convertToArithmeticView(e1) + " / " + convertToArithmeticView(e2) + ")";
+        Mul(e1, e2): "(" + convertToArithmeticView(e1) + " * " + convertToArithmeticView(e2) + ")";
+        Sub(e1, e2): "(" + convertToArithmeticView(e1) + " - " + convertToArithmeticView(e2) + ")";
+        Add(e1, e2): "(" + convertToArithmeticView(e1) + " + " + convertToArithmeticView(e2) + ")";
+        Double(i): d2s(i);
+    }
+}
+
+
+getValue(e: Exp) -> double {
+    switch(e) {
+        Pow(e1, e2): dpow(getValue(e1), getValue(e2));
+        Div(e1, e2): getValue(e1) / getValue(e2);
+        Mul(e1, e2): getValue(e1) * getValue(e2);
+        Sub(e1, e2): getValue(e1) - getValue(e2);
+        Add(e1, e2): getValue(e1) + getValue(e2);
+        Double(i): i;
+    }
+}
+
+
+main() {
+
+    inputData: [Pair<string, int>] = [ 
+        Pair(" 1 2 + ", 3),                  // 1 + 2
+        Pair(" 1 2 + 3 + ", 6),              // 1 + 2 + 3
+        Pair(" 1 2 3 + + ", 6),              // 1 + ( 2 + 3 )
+        Pair(" 1 2 * ", 2),                  // 1 * 2
+        Pair(" 1 2 3 * * ", 6),              // 1 * 2 * 3
+        Pair(" 1 2 * 3 4 * + ", 14),         // 1 * 2 + 3 * 4
+        Pair(" 2 4 * 1 + ", 9),              // ( 1 + 2 * 4 )
+        Pair(" 1 2 + 3 * ", 9),              // ( 1 + 2 ) * 3
+        Pair(" 1 2 * 3 +", 5),               // ( 1 * 2 ) + 3
+        Pair(" 1 2 - ", -1),                 // 1 - 2
+        Pair(" 1 2 + 3 -", 0),               // 1 + 2 - 3
+        Pair(" 1 2 - ", -1),                 // ( 1 - 2 )
+        Pair(" 1 2 - 3 - ", -4),             // ( 1 - 2 ) - 3
+        Pair(" 1 2 * ", 2),                  // 1 * 2
+        Pair(" 1 2 * 3 - ", -1),             // 1 * 2 - 3
+        Pair(" 1 2 * 3 4 * - ", -10),        // 1 * 2 - 3 * 4
+        Pair(" 1 2 4 * - ", -7),             // ( 1 - 2 * 4 )
+        Pair(" 1 2 - 3 * ", -3),             // ( 1 - 2 ) * 3
+        Pair(" 1 2 * 3 - ", -1),             // ( 1 * 2 ) - 3
+        Pair(" 4 2 / ", 2),                  // 4 / 2
+        Pair(" 8 1 / ", 8)                   // ( 8 / 1 )
+        ]; 
+
+
+
+    pack1_cntAllTests = ref length(inputData);
+    pack1_cntCorrectTests = ref 0;
+    fori(0, length(inputData) - 1, \i -> 
+    { 
+        println("input: " + inputData[i].first);
+        // convert to rpn grammar view 
+        // example: "1+2+3 -> Add(Add(Int(1), Int(2)), Int(3))"
+        rpnException = parsic(rpnGrammar, inputData[i].first, specialPegActions);
+        println("syntax Tree after parsic():" );
+        println(rpnException);
+        
+        arithmString = convertToArithmeticView(parsic(rpnGrammar, inputData[i].first, specialPegActions));
+        resultValue = getValue(parsic(standartGrammar, arithmString, defaultPegActions));
+        println(arithmString + " = " + d2s(resultValue) + 
+                    "    ---    Correct result: " + i2s(inputData[i].second));
+
+        println("convert to RPN view: " + convertToRPN(parsic(rpnGrammar, inputData[i].first, specialPegActions)));
+        println("\n");
+        if (d2s(resultValue) == d2s(i2d(inputData[i].second)))
+            pack1_cntCorrectTests := ^pack1_cntCorrectTests + 1;
+    });
+
+
+
+
+    inputData2: [Pair<string, double>] = [
+        Pair(" 1.7 2 + ", 3.7),                // 1.7 + 2
+        Pair(" 1 2 3.5 + + ", 6.5),            // 1 + 2 + 3.5
+        Pair(" 0.1 0.22 + ", 0.32),            // ( 0.1 + 0.22 )
+        Pair(" 1.3 2.0 + 3 + ", 6.3),          // ( 1.3 + 2.0 ) + 3
+        Pair(" 1 2.7 * ", 2.7),                // 1 * 2.7
+        Pair(" 7.7 2 * ", 15.4),               // 7.7 * 2
+        Pair(" 1 2.3 * 3 - ", -0.7),           // 1 * 2.3 - 3
+        Pair(" 10 2.2 * 3 4.3 * - ", 9.1),     // 10 * 2.2 - 3 * 4.3
+        Pair(" 1.9 2 - 3 * ", -0.3),           // ( 1.9 - 2 ) * 3
+        Pair(" 1.5 1.5 * 3 - ", -0.75),        // ( 1.5 * 1.5 ) - 3
+        Pair(" 4 2.5 / ", 1.6),                // 4 : 2.5
+        Pair(" 2 4 / ", 0.5),                  // 2 : 4
+        Pair(" 1 8 / ", 0.125)                 // ( 1 : 8 )
+    ] ;
+    pack2_cntAllTests = ref length(inputData2);
+    pack2_cntCorrectTests = ref 0;
+    fori(0, length(inputData2) - 1, \i -> 
+    { 
+        println("input: " + inputData2[i].first);
+        rpnException = parsic(rpnGrammar, inputData2[i].first, specialPegActions);
+        println("syntax Tree after parsic():" );
+        println(rpnException);
+        
+        arithmString = convertToArithmeticView(parsic(rpnGrammar, inputData2[i].first, specialPegActions));
+        resultValue = getValue(parsic(standartGrammar, arithmString, defaultPegActions));
+        println(arithmString + " = " + d2s(resultValue) + 
+                    "    ---    Correct result: " + d2s(inputData2[i].second));
+
+        println("convert to RPN view: " + convertToRPN(parsic(rpnGrammar, inputData2[i].first, specialPegActions)));
+        println("\n");
+        if (d2s(resultValue) == d2s(inputData2[i].second)) {
+            pack2_cntCorrectTests := ^pack2_cntCorrectTests + 1;
+        }
+    });
+
+
+
+    inputData3: [Pair<string, double>] = [
+        Pair(" 2 2 ^ ", 4.0),    // 2 ^ 2
+        Pair(" 2 3 ^ ", 8.0),    // 2 ^ 3
+        Pair(" 2 4 ^ ", 16.0),    // 2 ^ 4
+        Pair(" 3 2 ^ ", 9.0),    // 3 ^ 2
+        Pair(" 3 3 ^ ", 27.0),    // 3 ^ 3
+        Pair(" 0.5 4 ^ ", 0.0625),    // 0.5 ^ 4
+        Pair(" 2.5 2 ^ ", 6.25),    // 2.5 ^ 2
+        Pair(" 2 2.5 ^ 2 2.5 ^ + ", 11.31371),    // 2 ^ 2.5 + 2 ^ 2.5
+        Pair(" 2 2.5 ^ 2 2.5 ^ * ", 32.0),    // 2 ^ 2.5 * 2 ^ 2.5
+    ] ;
+    pack3_cntAllTests = ref length(inputData3);
+    pack3_cntCorrectTests = ref 1;
+    fori(0, length(inputData3) - 1, \i -> 
+    { 
+        println("input: " + inputData3[i].first);
+        rpnException = parsic(rpnGrammar, inputData3[i].first, specialPegActions);
+        println("syntax Tree after parsic():" );
+        println(rpnException);
+        
+        arithmString = convertToArithmeticView(parsic(rpnGrammar, inputData3[i].first, specialPegActions));
+        resultValue = getValue(parsic(standartGrammar, arithmString, defaultPegActions));
+        println(arithmString + " = " + d2s(roundTo(resultValue, 0.00001)) + 
+                    "    ---    Correct result: " + d2s(inputData3[i].second));
+
+        println("convert to RPN view: " + convertToRPN(parsic(rpnGrammar, inputData3[i].first, specialPegActions)));
+        println("\n");
+        if (d2s(resultValue) == d2s(inputData3[i].second)) {
+            pack3_cntCorrectTests := ^pack3_cntCorrectTests + 1;
+        }
+    });
+
+
+
+
+
+    println("\n\nRESULTS:");
+    println("   Package 1 (integer result)");
+    println("       All tests: " + i2s(^pack1_cntAllTests));
+    println("       Correct tests: " + i2s(^pack1_cntCorrectTests));
+    println("       Incorrect tests: " + i2s(^pack1_cntAllTests - ^pack1_cntCorrectTests));
+
+    println("   Package 2 (double result)");
+    println("       All tests: " + i2s(^pack2_cntAllTests));
+    println("       Correct tests: " + i2s(^pack2_cntCorrectTests));
+    println("       Incorrect tests: " + i2s(^pack2_cntAllTests - ^pack2_cntCorrectTests));
+    
+    println("   Package 3 (contains power)");
+    println("       All tests: " + i2s(^pack3_cntAllTests));
+    println("       Correct tests: " + i2s(^pack3_cntCorrectTests));
+    println("       Incorrect tests: " + i2s(^pack3_cntAllTests - ^pack3_cntCorrectTests));
+
+    println("   Summary");
+    println("       All tests: " + i2s(^pack1_cntAllTests + ^pack2_cntAllTests + ^pack3_cntAllTests));
+    println("       Correct tests: " + i2s(^pack1_cntCorrectTests + ^pack2_cntCorrectTests + 
+                                           ^pack3_cntCorrectTests));
+    println("       Incorrect tests: " + i2s((^pack1_cntAllTests - ^pack1_cntCorrectTests) + 
+                                             (^pack2_cntAllTests - ^pack2_cntCorrectTests) + 
+                                             (^pack3_cntAllTests - ^pack3_cntCorrectTests)));
+}

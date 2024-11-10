@@ -1,7 +1,7 @@
 // © Copyright 2011 Area9 Technologies.
 
-import timer;
-import ds/tuples;
+import lib/timer;
+import lib/ds/tuples;
 
 
 export {

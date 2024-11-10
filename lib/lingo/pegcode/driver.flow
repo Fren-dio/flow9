@@ -1,10 +1,10 @@
-import lingo/pegaction;
-import lingo/pegcode/grammar2code;
-import lingo/pegcode/rename_bindings;
-import lingo/pegcode/optimize_grammar;
-import lingo/pegcode/pegcode;
-import lingo/pegcode/lingocode;
-import lingo/pegcode/parsic;
+import lib/lingo/pegaction;
+import lib/lingo/pegcode/grammar2code;
+import lib/lingo/pegcode/rename_bindings;
+import lib/lingo/pegcode/optimize_grammar;
+import lib/lingo/pegcode/pegcode;
+import lib/lingo/pegcode/lingocode;
+import lib/lingo/pegcode/parsic;
 // import lingo/pegcode/pegcode2flow;
 
 export {

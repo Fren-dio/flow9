@@ -1,4 +1,4 @@
-import flowstructs;
+import lib/flowstructs;
 
 export {
 	SecurityMode ::= OWASP, FineGrainedOWASP;

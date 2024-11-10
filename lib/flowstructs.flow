@@ -1,5 +1,5 @@
-import ds/array;
-import dynamic;
+import lib/ds/array;
+import lib/dynamic;
 
 export {
 	// Use like

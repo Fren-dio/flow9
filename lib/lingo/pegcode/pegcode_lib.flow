@@ -1,6 +1,6 @@
-import ds/list;
-import string;
-import lingo/peg;
+import lib/ds/list;
+import lib/string;
+import lib/lingo/peg;
 
 export {
 	PegVmCacheItem(pos : int, capture : RuleResult);

@@ -1,4 +1,4 @@
-import string;
+import lib/string;
 
 export {
 	deserializeString(s : string) -> Pair<string, string>;

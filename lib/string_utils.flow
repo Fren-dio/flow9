@@ -1,8 +1,8 @@
-import string;
-import text/deserialize_string;
-import math/bits;
-import math/stringmath;
-import math/matrix;
+import lib/string;
+import lib/text/deserialize_string;
+import lib/math/bits;
+import lib/math/stringmath;
+import lib/math/matrix;
 
 export {
 	humpCase(s : string, initial : bool) -> string;

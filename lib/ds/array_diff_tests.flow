@@ -1,4 +1,4 @@
-import ds/array_diff;
+import lib/ds/array_diff;
 
 printInfo(title : string, arr : [?], inline : bool) -> void {
 	println(title + ":");

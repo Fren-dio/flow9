@@ -1,0 +1,9 @@
+exp = rpnToken+:t {parserFromRPNToString(:t)};
+
+rpnToken = ws int:e ws {:e} | ws '+' ws {AddToken()} | ws '-' ws {SubToken()} | ws '*' ws {MulToken()} | ws '/' ws {DivToken()} | ws '^' ws {PowToken()};
+int = double$d { DoubleToken(s2d($d)) } ;
+element = digit+;
+double = digit+'.'digit+ | digit+;
+digit = '0'-'9';
+ws = s*;
+s = " " | "\t" | "\n";

@@ -1,6 +1,6 @@
-import runtime;
-import net/url_parameter;
-import formats/json/json;
+import lib/runtime;
+import lib/net/url_parameter;
+import lib/formats/json/json;
 
 export {
 	setDevModeCheckFn(checkFn : () -> bool) -> void;

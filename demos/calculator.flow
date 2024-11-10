@@ -1,7 +1,7 @@
-import material/material;
-import material/material_dialog;
-import string;
-import ds/array;
+import lib/material/material;
+import lib/material/material_dialog;
+import lib/string;
+import lib/ds/array;
 
 export {
 	demoMakeCalculator(mgr : MaterialManager, onClose : () -> void) -> Material;

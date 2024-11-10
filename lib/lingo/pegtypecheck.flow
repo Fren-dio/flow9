@@ -1,5 +1,5 @@
-import lingo/peg;
-import ds/set;
+import lib/lingo/peg;
+import lib/ds/set;
 
 export {
 	typePegGrammar(g : Grammar) -> Tree<string, PegType>;

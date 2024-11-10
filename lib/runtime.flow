@@ -1,7 +1,7 @@
 // © Copyright 2011 Area9 Technologies.
 
-import securitymode;
-import net/url;
+import lib/securitymode;
+import lib/net/url;
 
 export {
 	//

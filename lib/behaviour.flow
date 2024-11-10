@@ -1,8 +1,8 @@
 // © Copyright 2011 Area9 Technologies.
 
-import timer;
-import ds/dlist;
-import ds/tree;
+import lib/timer;
+import lib/ds/dlist;
+import lib/ds/tree;
 
 export {
 	// Construct a new behaviour with a given value

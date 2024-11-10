@@ -1,0 +1,79 @@
+// тот же калькулятор как в 8 таске, но + операции деления, степени и умножение и вещественные числа
+// и без чтения из консоли
+
+
+
+
+exp = ws sum:e ws {:e};
+
+sum = mul:e1 ws '+' ws sum:e2 {Add(:e1,:e2)} | mul:e {:e};
+mul = digitReader:e1 ws '*' ws mul:e2 {Mul(:e1,:e2)} | digitReader:e {:e};
+digitReader = int:e {:e} | '(' exp:e ')' {:e}; 
+
+int = double$d { Double(s2d($d)) } ;
+element = digit+;
+double = digit+'.'digit+ | digit+;
+digit = '0'-'9';
+ws = s*;
+s = " " | "\t" | "\n";
+
+
+
+
+
+
+
+
+
+
+
+
+
+import lib/runtime;
+import lib/lingo/pegcode/driver;
+import lib/string;
+import lib/math/math;
+
+//flow structures defined like this in a flow file
+Exp ::= Add, Sub, Mul, Div, Double;
+    Add : (e1 : Exp, e2 : Exp);
+    Sub : (e1 : Exp, e2 : Exp);
+    Mul : (e1 : Exp, e2 : Exp);     // '-'
+    Div : (e1 : Exp, e2 : Exp);     // ':'
+    Double : (e : double);
+
+
+convertTreeToString(syntaxTree : flow) -> string {
+    switch(syntaxTree) {
+        Add(e1, e2): "(" + convertTreeToString(e1) + "+" + convertTreeToString(e2) + ")";
+        Sub(e1, e2): "(" + convertTreeToString(e1) + "-" + convertTreeToString(e2) + ")";
+        Mul(e1, e2): "(" + convertTreeToString(e1) + "*" + convertTreeToString(e2) + ")";
+        Div(e1, e2): "(" + convertTreeToString(e1) + "/" + convertTreeToString(e2) + ")";
+        Double(i) : d2s(i);
+    }
+}
+
+
+
+grammar = compilePegGrammar("#include C:\Users\kulma\gitRepository\newTryFlow\flow9\demos\labs_NSU\module_2\task_9\lingo\arithmetic.lingo");
+
+main() {
+
+    inputData2: [Pair<string, double>] = [
+        Pair(" 2 + 4 ", 6.0),
+        Pair(" 2 + 2 + 2 ", 6.0),
+        Pair(" 4.0 + 4.6 ", 4.0),
+    ] ;
+
+    fori(0, length(inputData2) - 1, \i -> { 
+        println("\n\n");
+        println(inputData2[i].first);
+        syntaxTree : flow = parsic(grammar, inputData2[i].first, defaultPegActions);
+        println("syntax Tree after parsic():" );
+        println(syntaxTree);
+        println("syntax Tree after convert to string:" );
+        println(convertTreeToString(syntaxTree));
+
+    });
+
+}

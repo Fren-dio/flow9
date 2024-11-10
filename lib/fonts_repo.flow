@@ -1,5 +1,5 @@
-import string;
-import ds/tree;
+import lib/string;
+import lib/ds/tree;
 
 export {
 	FONT_WEIGHT_BOOK =   400;

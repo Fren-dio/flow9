@@ -1,7 +1,7 @@
 // © Copyright 2011 Area9 Technologies.
 
-import runtime;
-import math/math;
+import lib/runtime;
+import lib/math/math;
 
 export {
 	// 2^n

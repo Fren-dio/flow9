@@ -1,0 +1,64 @@
+// Реализуйте PEG-парсер для грамматики простых арифметических выражений (целые константы, операции + и *), 
+// который порождает дерево синтаксического разбора. Используйте библиотеку lingo. Преобразуйте дерево обратно 
+// в строку. Реализуйте калькулятор, вычисляющий значение арифметического выражения. 
+
+
+import lib/runtime;
+import lib/lingo/pegcode/driver;
+import lib/string;
+
+//flow structures defined like this in a flow file
+Exp ::= Add, Mul, Int;
+    Add : (e1 : Exp, e2 : Exp);
+    Mul : (e1 : Exp, e2 : Exp);
+    Int : (e : int);
+
+
+getValue(e: Exp) -> int {
+    switch(e) {
+        Add(e1, e2): getValue(e1) + getValue(e2);
+        Mul(e1, e2): getValue(e1) * getValue(e2);
+        Int(i): i;
+    }
+}
+
+
+convertTreeToString(syntaxTree : flow) -> string {
+    switch(syntaxTree) {
+        Add(e1, e2): "(" + convertTreeToString(e1) + "+" + convertTreeToString(e2) + ")";
+        Mul(e1, e2): "(" + convertTreeToString(e1) + "*" + convertTreeToString(e2) + ")";
+        Int(i): i2s(i);
+    }
+}
+
+
+
+grammar = compilePegGrammar("#include C:\Users\kulma\gitRepository\newTryFlow\flow9\demos\labs_NSU\module_2\tasks_5_6_7\lingo\task_5.lingo");
+
+main() {
+
+     inputData: [Pair<string, int>] = [ Pair(" 1 + 2 ", 3),
+        Pair(" 1 + 2 + 3 ", 6),
+        Pair(" 1 + 2 + 3 + 4 ", 10),
+        Pair(" ( 1 + 2 ) ", 3),
+        Pair(" ( 1 + 2 ) + 3 ", 6),
+        Pair(" 1 * 2 ", 2),
+        Pair(" 1 * 2 * 3 ", 6),
+        Pair(" 1 * 2 + 3 * 4 ", 14),
+        Pair(" ( 1 + 2 * 4 ) ", 9),
+        Pair(" ( 1 + 2 ) * 3 ", 9),
+        Pair(" ( 1 * 2 ) + 3 ", 5)];
+   
+    leng = length(inputData) - 1;
+    fori(0, leng, \i -> { 
+        syntaxTree : flow = parsic(grammar, inputData[i].first, defaultPegActions);
+        println("syntax Tree after parsic():" );
+        println(syntaxTree);
+        println("syntax Tree after convert to string:" );
+        println(convertTreeToString(syntaxTree));
+        println(inputData[i].first + " = " + i2s(getValue(syntaxTree)) + 
+                    "    ---    Correct result: " + i2s(inputData[i].second) + "\n");
+
+    });
+
+}

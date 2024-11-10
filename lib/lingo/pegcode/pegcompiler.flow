@@ -1,18 +1,18 @@
-import runtime;
-import fs/filesystem;
-import text/binary;
-import lingo/lingogrammar;
-import lingo/pegcode/grammar2code;
-import lingo/pegcode/rename_bindings;
-import lingo/pegcode/optimize_grammar;
-import lingo/pegcode/pegcode;
-import lingo/pegcode/helpers;
-import lingo/pegtypecheck;
-import lingo/pegcode/infer_pegactions;
-import lingo/compiler/compile_lingo;
-import text/serialize;
-import lingo/pegaction;
-import preprocessor/preprocessor;
+import lib/runtime;
+import lib/fs/filesystem;
+import lib/text/binary;
+import lib/lingo/lingogrammar;
+import lib/lingo/pegcode/grammar2code;
+import lib/lingo/pegcode/rename_bindings;
+import lib/lingo/pegcode/optimize_grammar;
+import lib/lingo/pegcode/pegcode;
+import lib/lingo/pegcode/helpers;
+import lib/lingo/pegtypecheck;
+import lib/lingo/pegcode/infer_pegactions;
+import lib/lingo/compiler/compile_lingo;
+import lib/text/serialize;
+import lib/lingo/pegaction;
+import lib/preprocessor/preprocessor;
 
 // Add temporary imports here to get testfile to work with semantic ASTs for your grammar:
 // import formats/mouse/mouse_ast;

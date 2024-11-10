@@ -1,0 +1,9 @@
+import lib/runtime;
+
+main() {
+    println("Task 2");
+    a : [int] = [1, 2, 3];  
+    resultSum : int = fold(a, 0, \x,y -> x+y); 
+    println(resultSum);
+    println("summary of digits was finally");
+}

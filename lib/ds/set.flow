@@ -1,5 +1,5 @@
-import ds/tree;
-import string;
+import lib/ds/tree;
+import lib/string;
 
 // Sorted set implementation
 

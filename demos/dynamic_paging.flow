@@ -1,6 +1,6 @@
-import text/localization;
-import material/material;
-import material/material_gui;
+import lib/text/localization;
+import lib/material/material;
+import lib/material/material_gui;
 
 export {
 	demoMakeDynamicPaging(onClose : () -> void) -> Material;

@@ -1,6 +1,6 @@
 
-import promise;
-import algorithms;
+import lib/promise;
+import lib/algorithms;
 
 export {
 	// Returns true if intersection of "a" and "b" is not empty.

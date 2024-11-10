@@ -1,5 +1,5 @@
-import text/deserialize_string;
-import lingo/peg;
+import lib/text/deserialize_string;
+import lib/lingo/peg;
 
 export {
 	// pass in defaultPegActions to the parser to get access to these functions in actions

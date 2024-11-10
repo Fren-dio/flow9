@@ -1,7 +1,7 @@
-import lingo/peg;
-import text/serialize;
-import formats/json/json;
-import lingo/pegcode/pegcode;
+import lib/lingo/peg;
+import lib/text/serialize;
+import lib/formats/json/json;
+import lib/lingo/pegcode/pegcode;
 
 export {
 	// Pass this to the parser to be able to construct Json in your Lingo grammar

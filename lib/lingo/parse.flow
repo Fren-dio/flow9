@@ -1,5 +1,5 @@
-import lingo/peg;
-import net/url_parameter;
+import lib/lingo/peg;
+import lib/net/url_parameter;
 
 export {
 	//

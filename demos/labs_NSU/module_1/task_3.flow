@@ -1,0 +1,45 @@
+import lib/runtime;
+import lib/ds/array;
+
+fib(n : int) -> [int] {
+	if (n == 1) { [0] }
+	else if (n == 2) { [0, 1]}
+	else { 
+		prev = fib(n-1);
+		concat(prev, [prev[n-2]+prev[n-3]]); 
+	}		
+}
+
+
+tail_fib_start(n : int) -> [int] {
+	concat([0], tail_fib(n, 1, 0));
+}
+
+
+tail_fib (n : int, first : int, second : int) -> [int]{
+	if (n>1) { concat([first + second], tail_fib(n-1, second, first +second)); }
+	else []		
+}
+
+
+ref_fib(n : int) -> [int] {
+	if (n == 1) { [0] }
+	else if (n == 2) { [0, 1]}
+	else { 
+		prev_step : [int] = ref_fib(n-1);
+		ref_array = ref prev_step;
+		refArrayPush(ref_array, prev_step[n-3]+prev_step[n-2]);
+		^ref_array;
+	}
+}
+
+
+main() {
+	println("Task 3");
+
+	println(fib(30));
+
+	println(tail_fib_start(30));
+
+	println(ref_fib(30));
+}

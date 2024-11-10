@@ -1,5 +1,5 @@
 
-import runtime;
+import lib/runtime;
 
 export {
 	// Get a callback in x ms

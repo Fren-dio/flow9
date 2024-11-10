@@ -1,7 +1,7 @@
 // © Copyright 2012 Area9 Technologies.
 
-import math/math;
-import string;
+import lib/math/math;
+import lib/string;
 
 
 // string functions which should call math functions;

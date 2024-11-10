@@ -1,6 +1,6 @@
-import material/material;
-import material/material_dialog;
-import runtime;
+import lib/material/material;
+import lib/material/material_dialog;
+import lib/runtime;
 
 export {
 	demoMakeTicTacToe( onClose : () -> void ) -> Material;

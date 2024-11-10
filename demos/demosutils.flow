@@ -1,5 +1,5 @@
-import material/material;
-import material/material_dialog;
+import lib/material/material;
+import lib/material/material_dialog;
 
 export {
 	iPoint(x : int, y : int);

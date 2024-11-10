@@ -1,5 +1,5 @@
-import material/material;
-import material/material2tropic;
+import lib/material/material;
+import lib/material/material2tropic;
 
 Board(
 	rows : [[int]]

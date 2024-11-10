@@ -1,0 +1,52 @@
+// Реализуйте PEG-парсер для грамматики простых арифметических выражений (целые константы, операции + и *), 
+// который порождает дерево синтаксического разбора. Используйте библиотеку lingo. Преобразуйте дерево обратно 
+// в строку. Реализуйте калькулятор, вычисляющий значение арифметического выражения. 
+
+
+import lib/runtime;
+import lib/lingo/pegcode/driver;
+import lib/string;
+//import lib/lingo/pegcode/pegcompiler;   // for getUrlParameter()
+
+//flow structures defined like this in a flow file
+Exp ::= Add, Mul, Int;
+    Add : (e1 : Exp, e2 : Exp);
+    Mul : (e1 : Exp, e2 : Exp);
+    Int : (e : int);
+
+
+getValue(e: Exp) -> int {
+    switch(e) {
+        Add(e1, e2): getValue(e1) + getValue(e2);
+        Mul(e1, e2): getValue(e1) * getValue(e2);
+        Int(i): i;
+    }
+}
+
+
+convertTreeToString(syntaxTree : flow) -> string {
+    switch(syntaxTree) {
+        Add(e1, e2): "(" + convertTreeToString(e1) + "+" + convertTreeToString(e2) + ")";
+        Mul(e1, e2): "(" + convertTreeToString(e1) + "*" + convertTreeToString(e2) + ")";
+        Int(i): i2s(i);
+    }
+}
+
+
+
+grammar = compilePegGrammar("#include C:\Users\kulma\gitRepository\newTryFlow\flow9\demos\labs_NSU\module_2\task_8\lingo\arithmetic.lingo");
+
+main() {
+    exception : string = getUrlParameter("exception");
+    println("corect compile command is: flowcpp .\task_8.flow -- exception=1");
+    println("was read: " + exception);
+   
+    syntaxTree : flow = parsic(grammar, exception, defaultPegActions);
+    println("syntax Tree after parsic():" );
+    println(syntaxTree);
+    println("syntax Tree after convert to string:" );
+    println(convertTreeToString(syntaxTree));
+    println(exception + " = " + i2s(getValue(syntaxTree)) + "\n");
+
+
+}

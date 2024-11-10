@@ -1,4 +1,4 @@
-import string;
+import lib/string;
 
 export {
 	// Before you can translate an index to a line and column, you have to prepare one of these

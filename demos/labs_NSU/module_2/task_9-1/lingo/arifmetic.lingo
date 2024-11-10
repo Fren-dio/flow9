@@ -1,0 +1,15 @@
+exp = ws sum:e ws {:e};
+
+sum = sub:e1 ws '+' ws sum:e2 {Add(:e1,:e2)} | sub:e {:e};
+sub = div:e1 ws '-' ws sub:e2 {Sub(:e1,:e2)} | div:e {:e};
+div = mul:e1 ws '/' ws div:e2 {Div(:e1,:e2)} | mul:e {:e};
+mul = pow:e1 ws '*' ws mul:e2 {Mul(:e1,:e2)} | pow:e {:e};
+pow = digitReader:e1 ws '^' ws pow:e2 {Pow(:e1,:e2)} | digitReader:e {:e};
+digitReader = int:e {:e} | '(' exp:e ')' {:e}; 
+
+int = double$d { Double(s2d($d)) } ;
+element = digit+;
+double = digit+'.'digit+ | digit+;
+digit = '0'-'9';
+ws = s*;
+s = " " | "\t" | "\n";

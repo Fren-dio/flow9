@@ -1,5 +1,5 @@
-import net/url_parameter; // isUrlParameterTrue
-import lingo/flow/fail;
+import lib/net/url_parameter; // isUrlParameterTrue
+import lib/lingo/flow/fail;
 
 export {
 	// checks for URL parameter &test=true
