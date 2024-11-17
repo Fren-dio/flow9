@@ -1,0 +1,76 @@
+import alg/rpn;
+import alg/arith;
+
+export {
+	ar2rpn(e : ArExpr) -> [ArRPN] {
+		switch (e) {
+			ArSum(l, r): concat(concat(ar2rpn(l), ar2rpn(r)), [SumRPN()]);
+			ArMult(l, r): concat(concat(ar2rpn(l), ar2rpn(r)), [MultRPN()]);
+			ArInt(v): [ArgRPN(v)];
+		}
+	}
+
+	rpn2ar(e : [ArRPN]) -> Maybe<ArExpr> {
+		apply_op = \op, stack -> {
+			switch(stack) {
+				Cons(v1, t1): {
+					switch(t1) {
+						Cons(v2, t2): {
+							switch (op) {
+								SumRPN(): Some(Cons(ArSum(v2, v1), t2));
+								MultRPN(): Some(Cons(ArMult(v2, v1), t2));
+							}
+						}
+						EmptyList(): None();
+					}
+				}
+				EmptyList(): None();
+			}
+		}
+		stack = fold(e, Some(makeList()), \acc, r -> {
+				maybeBind(acc, \ac -> {
+						switch(r) {
+							ArgRPN(v): Some(Cons(ArInt(v), ac));
+							OpRPN(): apply_op(r, ac);
+						}
+					}
+				)
+			}
+		);
+		maybeBind(stack, \s ->
+			switch (s) {
+				Cons(v, t): if (t == EmptyList()) Some(v) else None();
+				EmptyList(): None();
+			}
+		)
+	}
+
+	rpn2ar1(e : [ArRPN], pos : int) -> Maybe<ArExpr> {
+		if (pos < 0) None() else 
+		switch(e[pos]) {
+			ArgRPN(v): Some(ArInt(v));
+			SumRPN(): {
+				me1 = rpn2ar1(e, pos - 1);
+				me2 = maybeBind(me1, \e1 -> rpn2ar1(e, pos - 1 - arsize(e1)));
+				maybeMap2(\e1, e2 -> ArSum(e2, e1))(me1, me2);
+			}
+			MultRPN(): {
+				me1 = rpn2ar1(e, pos - 1);
+				me2 = maybeBind(me1, \e1 -> rpn2ar1(e, pos - 1 - arsize(e1)));
+				maybeMap2(\e1, e2 -> ArMult(e2, e1))(me1, me2);
+			}
+		}
+	}
+
+	rpn2ar0(e : [ArRPN]) -> Maybe<ArExpr> {
+		rpn2ar1(e, length(e) - 1);
+	}
+
+	arsize(e : ArExpr) -> int {
+		switch (e) {
+			ArSum(lhs, rhs): arsize(lhs) + arsize(rhs) + 1;
+			ArMult(lhs, rhs): arsize(lhs) + arsize(rhs) + 1;
+			ArInt(val): 1;
+		}
+	}
+}

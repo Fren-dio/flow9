@@ -1,0 +1,363 @@
+import alg/algebr;
+import ds/set;
+
+export {
+
+simplify(e : AlgExp, n : int, m_exp : int, m_sim : int) -> AlgExp;
+
+}
+
+AlgExpOp ::= AlgSumOp, AlgMulOp, AlgMinOp, AlgDivOp, AlgNegOp, AlgVarOp, AlgIntOp;
+	AlgSumOp();
+	AlgMinOp();
+	AlgMulOp();
+	AlgDivOp();
+	AlgNegOp();
+	AlgVarOp();
+	AlgIntOp();
+
+alg2op(e : AlgExp) -> AlgExpOp {
+	switch (e) {
+		AlgSum(__, __): AlgSumOp();
+		AlgMin(__, __): AlgMinOp();
+		AlgMul(__, __): AlgMulOp();
+		AlgDiv(__, __): AlgDivOp();
+		AlgNeg(__):     AlgNegOp();
+		AlgVar(__):     AlgVarOp();
+		AlgInt(__):     AlgIntOp();
+	}
+}
+
+algSize(e : AlgExp) -> int {
+	switch (e) {
+		AlgSum(l, r): 1 + algSize(l) + algSize(r);
+		AlgMin(l, r): 1 + algSize(l) + algSize(r);
+		AlgMul(l, r): 1 + algSize(l) + algSize(r);
+		AlgDiv(l, r): 1 + algSize(l) + algSize(r);
+		AlgNeg(n):    1 + algSize(n);
+		AlgVar(name): 1;
+		AlgInt(val): 1;
+	}
+}
+
+algVarNum(e : AlgExp) -> int {
+	switch (e) {
+		AlgSum(l, r): algVarNum(l) + algVarNum(r);
+		AlgMin(l, r): algVarNum(l) + algVarNum(r);
+		AlgMul(l, r): algVarNum(l) + algVarNum(r);
+		AlgDiv(l, r): algVarNum(l) + algVarNum(r);
+		AlgNeg(n):    algVarNum(n);
+		AlgVar(name): 1;
+		AlgInt(val): 0;
+	}
+}
+
+AlgMatchTrans(
+	from : AlgExp,
+	to : AlgExp,
+);
+
+algMatchTransBalance(at : AlgMatchTrans) -> int {
+	algSize(at.from) - algSize(at.to)
+}
+
+doMatchAlgTrans(e : AlgExp, pattern : AlgExp, t : Tree<string, AlgExp>) -> Maybe<Tree<string, AlgExp>> {
+	bin_match = \l1, l2, r1, r2 -> {
+		switch (doMatchAlgTrans(l2, l1, t)) {
+			Some(t1): doMatchAlgTrans(r2, r1, t1);
+			None(): None();
+		}
+	}
+	switch (pattern) {
+		AlgVar(n): {
+			switch (lookupTree(t, n)) {
+				Some(e1): if (e == e1) Some(t) else None();
+				None(): Some(setTree(t, n, e));
+			}
+		}
+		AlgSum(l1, r1):
+			switch (e) {
+				AlgSum(l2, r2): bin_match(l1, l2, r1, r2);
+				default: None();
+			}
+		AlgMin(l1, r1):
+			switch (e) {
+				AlgMin(l2, r2): bin_match(l1, l2, r1, r2);
+				default: None();
+			}
+		AlgMul(l1, r1):
+			switch (e) {
+				AlgMul(l2, r2): bin_match(l1, l2, r1, r2);
+				default: None();
+			}
+		AlgDiv(l1, r1):
+			switch (e) {
+				AlgDiv(l2, r2): bin_match(l1, l2, r1, r2);
+				default: None();
+			}
+		AlgNeg(n1):
+			switch (e) {
+				AlgNeg(n2): doMatchAlgTrans(n1, n2, t);
+				default: None();
+			}
+		AlgInt(n1): {
+			switch (e) {
+				AlgInt(n2): if (n1 == n2) Some(t) else None();
+				default: None();
+			}
+		}
+	}
+}
+
+matchAlgExp(e : AlgExp, pattern : AlgExp) -> Maybe<Tree<string, AlgExp>> {
+	//println("matching: " + alg2s(e) + " with " + alg2s(pattern));
+	ret = doMatchAlgTrans(e, pattern, makeTree());
+	//println(eitherMap(ret, \s -> subst2s(s), "don't match"));
+	ret
+}
+
+applyAlgSubst(e : AlgExp, subst : Tree<string, AlgExp>) -> AlgExp {
+	switch (e) {
+		AlgSum(l, r): AlgSum(applyAlgSubst(l, subst), applyAlgSubst(r, subst));
+		AlgMin(l, r): AlgMin(applyAlgSubst(l, subst), applyAlgSubst(r, subst));
+		AlgMul(l, r): AlgMul(applyAlgSubst(l, subst), applyAlgSubst(r, subst));
+		AlgDiv(l, r): AlgDiv(applyAlgSubst(l, subst), applyAlgSubst(r, subst));
+		AlgNeg(n):    AlgNeg(applyAlgSubst(n, subst));
+		AlgVar(name): lookupTreeDef(subst, name, e);
+		AlgInt(val): e;
+	}
+}
+
+applyAlgMatchTrans(e : AlgExp, trans : AlgMatchTrans) -> [AlgExp] {
+	switch (matchAlgExp(e, trans.from)) {
+		Some(t): [applyAlgSubst(trans.to, t)];
+		None(): [];
+	}
+}
+
+AlgStep(
+	len : int
+);
+
+AlgExpHistory(
+	expr : AlgExp,
+	history : [AlgStep],
+);
+
+historyStep(e : AlgExpHistory, new_e : AlgExp) -> AlgExpHistory {
+	AlgExpHistory(
+		new_e,
+		concat(e.history, [AlgStep(algSize(e.expr) - algSize(new_e))])
+	)
+}
+
+applyAlgTransSet(eh : AlgExpHistory, trans : Tree<AlgExpOp, [(AlgExp) -> [AlgExp]]>, decide : (AlgExpHistory) -> bool) -> Set<AlgExpHistory> {
+	if (!decide(eh)) makeSet1(eh) else
+	switch (lookupTree(trans, alg2op(eh.expr))) {
+		Some(ts): 
+			fold(ts, makeSet1(eh), \acc, t -> 
+				fold(t(eh.expr), acc,
+					\ac, e : AlgExp -> insertSet(ac, historyStep(eh, e))
+				)
+			);
+		None(): makeSet1(eh);
+	}
+}
+
+allAlgForms(eh : AlgExpHistory, trans : Tree<AlgExpOp, [(AlgExp) -> [AlgExp]]>, decide : (AlgExpHistory) -> bool) -> Set<AlgExpHistory> {
+	hm = \x -> AlgExpHistory(x, eh.history);
+    all_binary = \l, r, maker -> {
+		foldSet(allAlgForms(hm(l), trans, decide), makeSet(), \acc, l1 ->
+			foldSet(allAlgForms(hm(r), trans, decide), acc, \bcc, r1 ->
+				mergeSets(bcc, applyAlgTransSet(maker(l1, r1), trans, decide))
+			)
+		)
+    }
+    all_unary = \u, maker -> {
+		foldSet(allAlgForms(hm(u), trans, decide), makeSet(), \acc, u1 ->
+			mergeSets(acc, applyAlgTransSet(maker(u1), trans, decide))
+		)
+    }
+	switch (eh.expr) {
+		AlgSum(l, r): all_binary(l, r, 
+			\l1, r1 -> AlgExpHistory(
+				AlgSum(l1.expr, r1.expr), 
+				concat(l1.history, r1.history),
+			)
+		);
+		AlgMin(l, r): all_binary(l, r, 
+			\l1, r1 -> AlgExpHistory(
+				AlgMin(l1.expr, r1.expr), 
+				concat(l1.history, r1.history),
+			)
+		);
+		AlgMul(l, r): all_binary(l, r, 
+			\l1, r1 -> AlgExpHistory(
+				AlgMul(l1.expr, r1.expr), 
+				concat(l1.history, r1.history),
+			)
+		);
+		AlgDiv(l, r): all_binary(l, r, 
+			\l1, r1 -> AlgExpHistory(
+				AlgDiv(l1.expr, r1.expr), 
+				concat(l1.history, r1.history),
+			)
+		);
+		AlgNeg(n): all_unary(n, 
+			\n1 -> AlgExpHistory(AlgNeg(n1.expr), n1.history)
+		);
+		default: makeSet1(eh);
+	}
+}
+
+AllForms(
+	delta : Set<AlgExp>,
+	cumulative : Set<AlgExp>,
+	history : Tree<AlgExp, [AlgStep]>,
+);
+
+expandAlgFormsStep(forms : AllForms, trans : Tree<AlgExpOp, [(AlgExp) -> [AlgExp]]>, decide : (AlgExpHistory) -> bool) -> AllForms {
+	foldSet(forms.delta, AllForms(makeSet(), forms.cumulative, forms.history), \acc, e -> {
+			eh = AlgExpHistory(e, lookupTreeDef(forms.history, e, []));
+			forms1 = allAlgForms(eh, trans, decide); 
+			//println("forms1.size: " + i2s(sizeSet(forms1)));
+			foldSet(forms1, acc, \bcc, eh1 -> {
+					//println("observing form: " + alg2s(e1.expr));
+					if (containsSet(bcc.cumulative, eh1.expr)) bcc else 
+					AllForms(
+						insertSet(bcc.delta, eh1.expr), 
+						insertSet(bcc.cumulative, eh1.expr), 
+						setTree(bcc.history, eh.expr, eh1.history)
+					)
+				}
+			)
+		}
+	)
+}
+
+doExpandAlgForms(forms : AllForms, trans : Tree<AlgExpOp, [(AlgExp) -> [AlgExp]]>, n : int, decide : (AlgExpHistory) -> bool) -> AllForms {
+	if (n == 0 || isEmptySet(forms.delta)) forms else {
+		println("step: " + i2s(n) + " cumulative: " + i2s(sizeSet(forms.cumulative)) + " delta: " + i2s(sizeSet(forms.delta)) );
+		println(allForms2s(forms));
+		doExpandAlgForms(expandAlgFormsStep(forms, trans, decide), trans, n - 1, decide)
+	}
+}
+
+expandAlgForms(e : AlgExp, trans : Tree<AlgExpOp, [(AlgExp) -> [AlgExp]]>, n : int, decide : (AlgExpHistory) -> bool) -> Set<AlgExp> {
+	doExpandAlgForms(
+		AllForms(
+			makeSet1(e), 
+			makeSet1(e),
+			makeTree1(e, []),
+		), trans, n, decide
+	).cumulative
+}
+
+simplifyAlg(e : AlgExp, trans : Tree<AlgExpOp, [(AlgExp) -> [AlgExp]]>, n : int, decide : (AlgExpHistory) -> bool) -> AlgExp {
+	all_forms = expandAlgForms(e, trans, n, decide);
+	foldSet(all_forms, e, \e2, e1 -> 
+		if (algSize(e1) < algSize(e2)) e1 else 
+		if (algSize(e1) == algSize(e2)) {
+			if (algVarNum(e1) < algVarNum(e2)) e1 else e2
+		} else e2
+	)
+}
+
+makeAlgMatchTrans(trans : [AlgMatchTrans]) -> Tree<AlgExpOp, [(AlgExp) -> [AlgExp]]> {
+	fold(trans, makeTree(), \acc, tr -> 
+		treePushToArrayValue(acc, 
+				alg2op(tr.from), \e -> applyAlgMatchTrans(e, tr)
+		)
+	)
+}
+
+algMatchTrans = makeAlgMatchTrans([
+	AlgMatchTrans(s2alg("((x - z) + (y + z))"), s2alg("(x + y)")),
+	AlgMatchTrans(s2alg("((x + z) + (y - z))"), s2alg("(x + y)")),
+	AlgMatchTrans(s2alg("(x + x)"), s2alg("(2 * x)")),
+	AlgMatchTrans(s2alg("- - x"), s2alg("x")),
+	AlgMatchTrans(s2alg("(x + y)"), s2alg("(y + x)")),
+	AlgMatchTrans(s2alg("(x * y)"), s2alg("(y * x)")),
+	AlgMatchTrans(s2alg("(x + 0)"), s2alg("x")),
+	AlgMatchTrans(s2alg("(x - 0)"), s2alg("x")),
+	AlgMatchTrans(s2alg("(x - x)"), s2alg("0")),
+	AlgMatchTrans(s2alg("(x + -x)"), s2alg("0")),
+	AlgMatchTrans(s2alg("(-x + x)"), s2alg("0")),
+	AlgMatchTrans(s2alg("(x * 0)"), s2alg("0")),
+	AlgMatchTrans(s2alg("(x * 1)"), s2alg("x")),
+	AlgMatchTrans(s2alg("(0 + x)"), s2alg("x")),
+	AlgMatchTrans(s2alg("(0 * x)"), s2alg("0")),
+	AlgMatchTrans(s2alg("(1 * x)"), s2alg("x")),
+	AlgMatchTrans(s2alg("(x * -1)"), s2alg("-x")),
+	AlgMatchTrans(s2alg("(-1 * x)"), s2alg("-x")),
+	AlgMatchTrans(s2alg("(x / x)"), s2alg("1")),
+	AlgMatchTrans(s2alg("(0 / x)"), s2alg("0")),
+	AlgMatchTrans(s2alg("((x * z) + (y * z))"), s2alg("((x + y) * z)")),
+	AlgMatchTrans(s2alg("((x + y) * z)"), s2alg("((x * z) + (y * z))")),
+	AlgMatchTrans(s2alg("((x + y) + z)"), s2alg("(x + (y + z))")),
+	AlgMatchTrans(s2alg("((x * y) * z)"), s2alg("(x * (y * z))")),
+	AlgMatchTrans(s2alg("((x * x) - (y * y))"), s2alg("((x - y) * (x + y))")),
+	AlgMatchTrans(s2alg("((x - y) * (x + y))"), s2alg("((x * x) - (y * y))")),
+	AlgMatchTrans(s2alg("((x - y) * (x - y))"), s2alg("(((x * x) + (y * y)) - (2 * (x * y)))")),
+	AlgMatchTrans(s2alg("(((x * x) + (y * y)) - (2 * (x * y)))"), s2alg("((x - y) * (x - y))")),
+	AlgMatchTrans(s2alg("((x + y) * (x + y))"), s2alg("(((x * x) + (y * y)) + (2 * (x * y)))")),
+	AlgMatchTrans(s2alg("(((x * x) + (y * y)) + (2 * (x * y)))"), s2alg("((x + y) * (x + y))")),
+]);
+
+algEvalTrans(e : AlgExp) -> [AlgExp] {
+	switch (doAlgEvalTrans(e)) {
+		Some(v): [AlgInt(v)];
+		None(): [];
+	}
+}
+
+doAlgEvalTrans(expr : AlgExp) -> Maybe<int> {
+	switch (expr) {
+		AlgSum(l, r): maybeMap2(\x, y -> x + y)(doAlgEvalTrans(l), doAlgEvalTrans(r));
+		AlgMin(l, r): maybeMap2(\x, y -> x - y)(doAlgEvalTrans(l), doAlgEvalTrans(r));
+		AlgMul(l, r): maybeMap2(\x, y -> x * y)(doAlgEvalTrans(l), doAlgEvalTrans(r));
+		AlgDiv(l, r): maybeBind2(\x, y -> if (y != 0) Some(x / y) else None())(doAlgEvalTrans(l), doAlgEvalTrans(r));
+		AlgNeg(n):    maybeMap(doAlgEvalTrans(n), \v -> -v);
+		AlgVar(name): None();
+		AlgInt(val): Some(val);
+	}
+}
+
+algTrans = mergeTreeCustom(
+	algMatchTrans,
+	pairs2tree([
+		Pair(AlgSumOp(), [algEvalTrans]),
+		Pair(AlgMinOp(), [algEvalTrans]),
+		Pair(AlgMulOp(), [algEvalTrans]),
+		Pair(AlgDivOp(), [algEvalTrans]),
+		Pair(AlgNegOp(), [algEvalTrans]),
+		Pair(AlgVarOp(), [algEvalTrans]),
+		Pair(AlgIntOp(), [algEvalTrans]),
+	]),
+	\__, ts1, ts2 -> concat(ts1, ts2)
+);
+
+//simplifyAlg5(e : AlgExp, n) -> AlgExp {
+//	simplifyAlg(e, algTrans, 3) 
+//}
+
+subst2s(s : Tree<string, AlgExp>) -> string {
+	foldTree(s, "", \v, e, str ->
+		str + "\n" + v + " -> " + alg2s(e)
+	)
+}
+
+allForms2s(forms : AllForms) -> string {
+	//"delta:\n" + strGlue(map(set2array(forms.delta), \e -> alg2s(e.expr)), "\n") + "\n";
+	"\nall:\n" + strGlue(map(set2array(forms.cumulative), \e -> alg2s(e)), "\n") + "\n";
+}
+
+decideToApplyDefault(e : AlgExpHistory, max_expands : int, max_equals : int) -> bool {
+	num_expands = fold(e.history, 0, \acc, s -> if (s.len < 0) acc + 1 else acc);
+	num_equals = fold(e.history, 0, \acc, s -> if (s.len == 0) acc + 1 else acc);
+	num_expands <= max_expands && num_equals <= max_equals
+}
+
+simplify(e : AlgExp, n : int, m_exp : int, m_sim : int) -> AlgExp {
+	simplifyAlg(e, algTrans, n, \h -> decideToApplyDefault(h, m_exp, m_sim));
+}

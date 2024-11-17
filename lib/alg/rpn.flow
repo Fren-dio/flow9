@@ -1,0 +1,55 @@
+import lingo/pegcode/driver;
+
+export {
+	ArRPN ::= OpRPN, ArgRPN;
+		OpRPN ::= SumRPN, MultRPN;
+		ArgRPN(val : int);
+		SumRPN(); MultRPN();
+
+	rpn2s(e : [ArRPN]) -> string {
+		fold(e, "", \acc, r -> {
+				switch(r) {
+					ArgRPN(v): acc + i2s(v) + " ";
+					SumRPN():  acc + "+ "; 
+					MultRPN(): acc + "* "
+				}
+			}
+		)
+	}
+
+	rpn2i(e : [ArRPN]) -> Maybe<int> {
+		apply_op = \op, stack -> {
+			switch(stack) {
+				Cons(v1, t1): {
+					switch(t1) {
+						Cons(v2, t2): {
+							switch (op) {
+								SumRPN(): Some(Cons(v1 + v2, t2));
+								MultRPN(): Some(Cons(v1 * v2, t2));
+							}
+						}
+						EmptyList(): None();
+					}
+				}
+				EmptyList(): None();
+			}
+		}
+		stack = fold(e, Some(makeList()), \acc, r -> {
+				maybeBind(acc, \ac -> {
+						switch(r) {
+							ArgRPN(v): Some(Cons(v, ac));
+							OpRPN(): apply_op(r, ac);
+						}
+					}
+				)
+			}
+		);
+		maybeBind(stack, \s ->
+			switch (s) {
+				Cons(v, t): if (t == EmptyList()) Some(v) else None();
+				EmptyList(): None();
+			}
+		)
+	}
+}
+

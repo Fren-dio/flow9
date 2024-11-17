@@ -1,0 +1,8 @@
+
+
+
+var = letter+$d {Variable($d)};
+letter = 'a' - 'z' | 'A' - 'Z';
+digit = '0'-'9';
+ws = s*;
+s = " " | "\t" | "\n";

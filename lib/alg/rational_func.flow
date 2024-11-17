@@ -1,0 +1,57 @@
+import alg/polynomial;
+
+export {
+	RatFunc(num : PolySum, den : PolySum);
+
+	ratFunc2s(f : RatFunc) -> string {
+		if (f.den == polyConst(1)) polySum2s(f.num) else {
+			num_str = polySum2s(f.num);
+			den_str = polySum2s(f.den);
+			frac_len = max(strlen(num_str), strlen(den_str));
+			num_str + "\n" + strRepeat("-", frac_len) + "\n" + den_str
+		}
+	}
+
+	negRatFunc(f : RatFunc) -> RatFunc {
+		RatFunc(negPoly(f.num), f.den);
+	}
+	
+	sumRatFunc(f1 : RatFunc, f2 : RatFunc) -> RatFunc {
+		RatFunc(sumPoly(mulPoly(f1.num, f2.den), mulPoly(f2.num, f1.den)), mulPoly(f1.den, f2.den));
+	}
+	
+	minRatFunc(f1 : RatFunc, f2 : RatFunc) -> RatFunc {
+		RatFunc(minPoly(mulPoly(f1.num, f2.den), mulPoly(f2.num, f1.den)), mulPoly(f1.den, f2.den));
+	}
+	
+	mulRatFunc(f1 : RatFunc, f2 : RatFunc) -> RatFunc {
+		RatFunc(mulPoly(f1.num, f2.num), mulPoly(f1.den, f2.den));
+	}
+	
+	divRatFunc(f1 : RatFunc, f2 : RatFunc) -> RatFunc {
+		RatFunc(mulPoly(f1.num, f2.den), mulPoly(f1.den, f2.num));
+	}
+
+	reduceCommonDivisor(f : RatFunc) -> RatFunc {
+		red_num = reducePoly(f.num);
+		red_den = reducePoly(f.den);
+		num_divisor = commonPolySumDivisor(red_num);
+		den_divisor = commonPolySumDivisor(red_den);
+
+		num1 = dividePoly(red_num, num_divisor);
+		den1 = dividePoly(red_den, den_divisor);
+		common_divisor = commonPolyMulDivisor(num_divisor, den_divisor);
+		if (num1 == den1) {
+			num2 = PolyDivisor(num_divisor.coef, dividePolyMult(num_divisor.prod, common_divisor));
+			den2 = PolyDivisor(den_divisor.coef, dividePolyMult(den_divisor.prod, common_divisor));
+			RatFunc(
+				PolySum(makeTree1(num2.prod, num2.coef)), 
+				PolySum(makeTree1(den2.prod, den2.coef))
+			)
+		} else {
+			div_num = dividePoly(red_num, common_divisor);
+			div_den = dividePoly(red_den, common_divisor);
+			RatFunc(div_num, div_den)
+		}
+	}
+}

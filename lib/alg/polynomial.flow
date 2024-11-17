@@ -1,0 +1,139 @@
+import ds/tree;
+import alg/rational_num;
+
+export {
+	PolySum(sum : Tree<PolyMul, int>);
+	PolyMul(mult : Tree<string, int>);
+
+	polyConst(c : int) -> PolySum {
+		if (c == 0) {
+			PolySum(makeTree());
+		} else {
+			PolySum(makeTree1(PolyMul(makeTree()), c));
+		}
+	}
+
+	polyVar(v : string) -> PolySum {
+		PolySum(makeTree1(PolyMul(makeTree1(v, 1)), 1));
+	}
+
+	polySum2s(s : PolySum) -> string {
+		str = strGlue(
+			map(tree2pairs(s.sum), \p -> {
+					prod = polyMul2s(p.first);
+					if (prod == "") i2s(p.second) else
+					i2s(p.second) + "*" + prod
+				}
+			), 
+			" + "
+		);
+		if (str == "") "0" else str
+	}
+
+	polyMul2s(m : PolyMul) -> string {
+		strGlue(
+			map(tree2pairs(m.mult), \p -> {
+					if (p.second == 1) p.first else
+					p.first + "^" + i2s(p.second)
+				}
+			), 
+			"*"
+		)
+	}
+
+	negPoly(s : PolySum) -> PolySum {
+		PolySum(mapTree(s.sum, \i -> -i))
+	}
+
+	sumPoly(s1 : PolySum, s2 : PolySum) {
+		reducePoly(PolySum(
+			mergeTreeCustom(s1.sum, s2.sum, \m, c1, c2 -> c1 + c2)
+		))
+	}
+
+	minPoly(s1 : PolySum, s2 : PolySum) {
+		sumPoly(s1, negPoly(s2))
+	}
+	
+	mulPoly(s1 : PolySum, s2 : PolySum) {
+		reducePoly(PolySum(
+			foldTree(s1.sum, makeTree(), \m1, c1, acc ->
+				foldTree(s2.sum, acc, \m2, c2, bcc -> {
+						m = PolyMul(mergeTreeCustom(m1.mult, m2.mult, \v, d1, d2 -> d1 + d2));
+						switch (lookupTree(bcc, m)) {
+							None(): setTree(bcc, m, c1 * c2);
+							Some(c): setTree(bcc, m, c + c1 * c2);
+						}
+					}
+				)
+			)
+		))
+	}
+	
+	reducePoly(s : PolySum) -> PolySum {
+		PolySum(
+			filterTree(
+				foldTree(s.sum, makeTree(), 
+					\m, c, acc -> {
+						m1 = PolyMul(filterTree(m.mult, \__, d -> d != 0));
+						switch (lookupTree(acc, m1)) {
+							None(): setTree(acc, m1, c);
+							Some(c0): setTree(acc, m1, c0 + c);
+						}
+					}
+				),
+				\__, c -> c != 0
+			)
+		)
+	}
+	
+	PolyDivisor(
+		coef : int,
+		prod : PolyMul,
+	);
+
+	commonPolyMulDivisor(div1 : PolyDivisor, div2 : PolyDivisor) -> PolyDivisor {
+		commonMult = PolyMul(foldTree(div1.prod.mult, makeTree(), \v, d1, acc ->
+				switch (lookupTree(div2.prod.mult, v)) {
+					Some(d2): setTree(acc, v, min(d1, d2));
+					None(): acc;
+				}
+			)
+		)
+		PolyDivisor(gcd(div1.coef, div2.coef), commonMult)
+	}
+	
+	commonPolySumDivisor(s : PolySum) ->  PolyDivisor {
+		switch (s.sum) {
+			TreeNode(m0, c0,__,__,__): {
+				foldTree(s.sum, PolyDivisor(c0, m0), \m, c, acc ->
+					commonPolyMulDivisor(acc, PolyDivisor(c, m))
+				)
+			}
+			TreeEmpty(): PolyDivisor(1, PolyMul(makeTree()));
+		}
+	}
+
+	dividePolyMult(m : PolyMul, divisor : PolyDivisor) -> PolyMul {
+		PolyMul(foldTree(m.mult, makeTree(), \v, d1, acc -> {
+				d = switch (lookupTree(divisor.prod.mult, v)) {
+					Some(d2): d1 - d2;
+					None(): d1;
+				}
+				if (d > 0) setTree(acc, v, d) else acc
+			})
+		)
+	}
+
+	dividePoly(s : PolySum, divisor : PolyDivisor) -> PolySum {
+		PolySum(foldTree(s.sum, makeTree(), \m1, c0, acc -> {
+				m2 = dividePolyMult(m1, divisor);
+				c1 = c0 / divisor.coef;
+				switch (lookupTree(acc, m2)) {
+					Some(c2): setTree(acc, m2, c1 + c2);
+					None(): setTree(acc, m2, c1);
+				}
+			})
+		)
+	}
+}

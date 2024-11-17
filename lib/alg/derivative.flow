@@ -1,0 +1,25 @@
+import alg/algebr;
+
+export {
+
+algDerive(e : AlgExp, v : string) -> AlgExp {
+	switch (e) {
+		AlgSum(lhs, rhs): AlgSum(algDerive(lhs, v), algDerive(rhs, v));
+		AlgMin(lhs, rhs): AlgMin(algDerive(lhs, v), algDerive(rhs, v));
+		AlgMul(lhs, rhs): 
+			AlgSum(
+				AlgMul(algDerive(lhs, v), rhs), 
+				AlgMul(lhs, algDerive(rhs, v))
+			);
+		AlgDiv(lhs, rhs): 
+			AlgDiv(
+				AlgMin(AlgMul(algDerive(lhs, v), rhs), AlgMul(lhs, algDerive(rhs, v))), 
+				AlgMul(rhs, rhs)
+			);
+		AlgNeg(e1): AlgNeg(algDerive(e1, v));
+		AlgVar(name): if (name == v) AlgInt(1) else e;
+		AlgInt(val): AlgInt(0);
+	}
+}
+
+}

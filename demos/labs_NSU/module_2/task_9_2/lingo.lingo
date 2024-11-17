@@ -1,0 +1,15 @@
+S = plus|minus|neg|mult|divide|int|var;
+
+plus = "(" ws S:l ws "+" ws S:r ws ")"          {AlgSum(:l, :r)};
+minus = "(" ws S:l ws "-" ws S:r ws ")"         {AlgSub(:l, :r)};
+mult = "(" ws S:l ws "*" ws S:r ws ")"          {AlgMult(:l, :r)};
+divide = "(" ws S:l ws "/" ws S:r ws ")"        {AlgDiv(:l, :r)};
+
+neg =  ws "-" ws S:v ws                         {AlgNeg(:v)};
+
+int  = digit+ $s                                {AlgRat(s2i($s), 1)};
+var = letter+ $s                                {AlgVar($s)};
+
+ws = " "*;
+digit = '0' - '9';
+letter = 'a' - 'z';

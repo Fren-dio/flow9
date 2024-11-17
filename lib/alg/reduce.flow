@@ -1,0 +1,85 @@
+import alg/algebr;
+
+export {
+
+algReduce(e : AlgExp) -> AlgExp {
+	is_const = \e1, c -> {
+		switch (e1) {
+			AlgInt(v): v == c;
+			default: false;
+		}
+	}
+	is_zero = \e1 -> is_const(e1, 0);
+	is_one = \e1 -> is_const(e1, 1);
+	switch (e) {
+		AlgSum(l, r): {
+			l_red = algReduce(l);
+			r_red = algReduce(r);
+			if (is_zero(l_red)) {
+				if (is_zero(r_red)) AlgInt(0) else r_red
+			} else if (is_zero(r_red)) {
+				if (is_zero(l_red)) AlgInt(0) else l_red
+			} else {
+				switch (l_red) {
+					AlgNeg(l_red_abs): {
+						switch (r_red) {
+							AlgNeg(r_red_abs):
+								AlgSum(l_red, r_red);
+							default:
+								if (l_red_abs == r_red) AlgInt(0) else AlgSum(l_red, r_red);
+						}
+					}
+					default: {
+						switch (r_red) {
+							AlgNeg(r_red_abs):
+								if (r_red_abs == l_red) AlgInt(0) else AlgSum(l_red, r_red);
+							default:
+								AlgSum(l_red, r_red);
+						}
+					}
+				}
+			}
+		}
+		AlgMin(l, r): {
+			l_red = algReduce(l);
+			r_red = algReduce(r);
+			if (is_zero(l_red)) {
+				if (is_zero(r_red)) AlgInt(0) else AlgNeg(r_red)
+			} else if (is_zero(r_red)) {
+				if (is_zero(l_red)) AlgInt(0) else l_red
+			} else {
+				if (l_red == r_red) AlgInt(0) else AlgMin(l_red, r_red)
+			}
+		}
+		AlgMul(l, r): {
+			l_red = algReduce(l);
+			r_red = algReduce(r);
+			if (is_zero(l_red) || is_zero(r_red)) AlgInt(0) else {
+				if (is_one(l_red)) {
+					if (is_one(r_red)) AlgInt(1) else r_red
+				} else if (is_one(r_red)) {
+					if (is_one(l_red)) AlgInt(1) else l_red
+				} else {
+					AlgMul(l_red, r_red)
+				}
+			}
+		}
+		AlgDiv(l, r): {
+			l_red = algReduce(l);
+			r_red = algReduce(r);
+			if (is_zero(l_red)) {
+				AlgInt(0)
+			} else {
+				AlgDiv(l_red, r_red)
+			}
+		}
+		AlgNeg(e1): {
+			e1_red = algReduce(e1);
+			if (is_zero(e1_red)) AlgInt(0) else AlgNeg(e1_red);
+		}
+		AlgVar(name): e;
+		AlgInt(val): e;
+	}
+}
+
+}

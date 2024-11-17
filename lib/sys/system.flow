@@ -1,4 +1,4 @@
-import runtime;
+import lib/runtime;
 
 export {
 	// Read a file as binary, one byte per character. Is a counterpart for 'setFileContentBytes' function.

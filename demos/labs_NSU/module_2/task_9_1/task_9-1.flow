@@ -19,8 +19,8 @@ rpnToken ::= AddToken, SubToken, MulToken, DivToken, PowToken, DoubleToken;
     PowToken : ();
     DoubleToken : (e : double);
 
-standartGrammar = compilePegGrammar("#include C:\Users\kulma\gitRepository\newTryFlow\flow9\demos\labs_NSU\module_2\task_9-1\lingo\arifmetic.lingo");
-rpnGrammar = compilePegGrammar("#include C:\Users\kulma\gitRepository\newTryFlow\flow9\demos\labs_NSU\module_2\task_9-1\lingo\rpn.lingo");
+standartGrammar = compilePegGrammar("#include C:\Users\kulma\gitRepository\newTryFlow\flow9\demos\labs_NSU\module_2\task_9_1\lingo\arifmetic.lingo");
+rpnGrammar = compilePegGrammar("#include C:\Users\kulma\gitRepository\newTryFlow\flow9\demos\labs_NSU\module_2\task_9_1\lingo\rpn.lingo");
 
 
 // convert from rpn to normal
@@ -211,6 +211,7 @@ main() {
         Pair(" 2.5 2 ^ ", 6.25),    // 2.5 ^ 2
         Pair(" 2 2.5 ^ 2 2.5 ^ + ", 11.31371),    // 2 ^ 2.5 + 2 ^ 2.5
         Pair(" 2 2.5 ^ 2 2.5 ^ * ", 32.0),    // 2 ^ 2.5 * 2 ^ 2.5
+        Pair(" 100 1 1 ^ / 20 20 * 100 1 3 4 ^ ^ * - - ", -200.0),               //      a b c ^ / d e * a c 3 4 ^ ^ * - -
     ] ;
     pack3_cntAllTests = ref length(inputData3);
     pack3_cntCorrectTests = ref 1;

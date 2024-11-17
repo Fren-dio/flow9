@@ -1,0 +1,16 @@
+import alg/algebr;
+import alg/rational_num;
+
+export {
+	alg2r(ex : AlgExp, var2int : Tree<string, int>) -> Maybe<RatNum> {
+		switch (ex) {
+			AlgSum(lhs, rhs): maybeMap2(ratSum)(alg2r(lhs, var2int), alg2r(rhs, var2int));
+			AlgMin(lhs, rhs): maybeMap2(ratMin)(alg2r(lhs, var2int), alg2r(rhs, var2int));
+			AlgMul(lhs, rhs): maybeMap2(ratMul)(alg2r(lhs, var2int), alg2r(rhs, var2int));
+			AlgDiv(lhs, rhs): maybeMap2(ratDiv)(alg2r(lhs, var2int), alg2r(rhs, var2int));
+			AlgNeg(e):        maybeMap(alg2r(e, var2int), ratNeg);
+			AlgVar(name):     maybeMap(lookupTree(var2int, name), \i -> RatNum(i, 1));
+			AlgInt(val):      Some(RatNum(val, 1));
+		}
+	}
+}

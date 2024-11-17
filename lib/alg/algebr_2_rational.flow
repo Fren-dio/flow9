@@ -1,0 +1,16 @@
+import alg/rational_func;
+import alg/algebr;
+
+export {
+	alg2rat(ex : AlgExp) -> RatFunc {
+		switch (ex) {
+			AlgSum(l, r): sumRatFunc(alg2rat(l), alg2rat(r));
+			AlgMin(l, r): minRatFunc(alg2rat(l), alg2rat(r));
+			AlgMul(l, r): mulRatFunc(alg2rat(l), alg2rat(r));
+			AlgDiv(l, r): divRatFunc(alg2rat(l), alg2rat(r));
+			AlgNeg(e):    negRatFunc(alg2rat(e));
+			AlgVar(name): RatFunc(polyVar(name), polyConst(1));
+			AlgInt(val):  RatFunc(polyConst(val), polyConst(1));
+		}
+	}
+}

@@ -1,0 +1,49 @@
+/*
+9.2) Напишите функцию, которая
+преобразует алгебраическое выражение в рациональную функцию (часть
+многочленов). Подключаемые библиотеки в alg.rar
+"((((a + 1) / (7 * c)) * ((7 + (6 * c)) / x)) / ((3 * (a + 1)) / (x * x)))",
+"((((x - 6) / (6 * y)) / (((x * x) - (y * y)) / y)) * (((x * x) + ((2 * (x * y)) + (y * y))) / x))",
+"((((9 * (x * x)) - 4) / ((3 * x) + 2)) - (3 * x))",
+"(((4 * (a * a)) - 9) * ((1 / ((2 * a) - 3)) - (1 / ((2 * a) + 3))))"
+*/
+
+
+/*
+    inputData: [Pair<string, string>] = [
+        Pair("a + 2", "a + 2"),
+        Pair("(a + 2)/(b + 4)", "(a + 2)/(b + 4)"),
+        Pair("(a + 2)/(b + 4) + (c + 4)/(b + 4)", "(a + c + 6)/(b + 4)"),
+    ];
+*/
+
+
+import demos/labs_NSU/module_2/task_9_2/old_version/quotient;
+import demos/labs_NSU/module_2/task_9_2/old_version/expression;
+import demos/labs_NSU/module_2/task_9_2/old_version/parsing;
+import demos/labs_NSU/module_2/task_9_2/old_version/simplification;
+import demos/labs_NSU/module_2/task_9_2/old_version/fraction;
+
+main() {
+
+    inputData: [Pair<string, string>] = [
+        Pair("a + 2", "a + 2"),
+        Pair("(a + 2)/(b + 4)", "(a + 2)/(b + 4)"),
+        Pair("(a + 2)/(b + 4) + (c + 4)/(b + 4)", "(a + c + 6)/(b + 4)"),
+        Pair(" x / (x+1) + (x+2)/(x+3)", "something"),
+    ];
+    
+
+    fori(0, length(inputData) - 1, \i -> 
+    { 
+        str = inputData[i].first;
+        println("input: " + str);
+        expression: Exp = parse(str, "#include demos/labs_NSU/module_2/task_9_2/old_version/lingo/lab9.lingo");
+        fraction: Fraction = toRationalFunction(expression);
+        println(getFractionRepr(fraction));
+        println("output: " + getFractionRepr(fraction));
+        println("correct: " + inputData[i].second + "\n\n");
+    });
+
+
+}
