@@ -683,7 +683,7 @@ getRat(e:AlgExp)->RatNum{
 
 createReduceStr4Mult(var:string, degree: int)->string{
     if(degree != 1){
-        var + "*" + createReduceStr4Mult(var, degree-1);
+        var + "^" + i2s(degree);
     }
     else{
         var;
@@ -955,7 +955,7 @@ executeStr(getStr : string){
 
     ratFunc = alg2RatFunc(reduceExpr); 
     reduceRatFunc = reduceRatFunc(ratFunc);            
-    println("Simplify differ: " + similarParts2s(reduceRatFunc) + "\n");
+    println("\nSimplify differ: " + similarParts2s(reduceRatFunc) + "\n");
     
 }
 
@@ -968,23 +968,42 @@ main() {
         "(5*y)",
         "(5*(x*x))",
         "((5*x)*x)",
-        "((((2*x)-3)*((2*x)-3))-((2*x)*(4+(2*x))))"
+        "((((2*x)-3)*((2*x)-3))-((2*x)*(4+(2*x))))",
+        "((((x*x)+(7*(x*(x*(y*(y*y))))))+y)+4)", 
     ] ;
 
-    fori(0, length(inputData) - 1, \i -> 
+    fori(0, length(inputData) - 2, \i -> 
     {
-        println("\n\ninput: " + inputData[i]);
-        println("ast tree: ");
+        println("\n\n\n\n\ninput: " + inputData[i]);
+        println("\nast tree: ");
         excep = s2ar(inputData[i]);
         println(excep);
         
         println(ar2s(diff(excep, "x")));
-        println("differ: ");
+        println("\ndiffer by x variable: ");
         dif_excep = ar2s(simplify(diff(excep, "x")));
-        println(dif_excep);
         executeStr(dif_excep);
+        println("\ndiffer by y variable: ");
+        dif_excep2 = ar2s(simplify(diff(excep, "y")));
+        println(dif_excep2);
+        executeStr(dif_excep2);
 
     });
+
+    in = "(((x^2)+(7*(x^2)*(y^3))+y)+4)";
+    println("\n\n\n\n\ninput: " + in);
+    println("\nast tree: ");
+    excep3 = s2ar("((((x*x)+(7*(x*(x*(y*(y*y))))))+y)+4)");
+    println(excep3);
+        
+    println(ar2s(diff(excep3, "x")));
+    println("\ndiffer by x variable: ");
+    dif_excep = ar2s(simplify(diff(excep3, "x")));
+    executeStr(dif_excep);
+    println("\ndiffer by y variable: ");
+    dif_excep2 = ar2s(simplify(diff(excep3, "y")));
+    println(dif_excep2);
+    executeStr(dif_excep2);
 
 
     quit(0);
